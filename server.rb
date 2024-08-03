@@ -72,8 +72,9 @@ class Server < Sinatra::Base
     end
 
     verified, verification_data = Altcha.verify_server_signature(payload, ALTCHA_HMAC_KEY)
+    fields_verified = Altcha.verify_fields_hash(params, verification_data.fields, verification_data.fields_hash, 'SHA-256')
 
-    if verified
+    if verified && fields_verified
       { success: true, form_data: params, verification_data: verification_data }.to_json
     else
       halt 400, { error: 'Invalid Altcha payload' }.to_json
